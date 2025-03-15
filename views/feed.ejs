@@ -1,0 +1,154 @@
+<%- include('./partials/header') %>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-user-circle"></i> <%= user.username %>
+                    </h5>
+                    <p class="card-text text-muted"><%= user.bio || 'No bio yet' %></p>
+                    <div class="interests-tags">
+                        <% user.interests.forEach(interest => { %>
+                            <span class="badge bg-success mb-1"><%= interest %></span>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Feed -->
+        <div class="col-md-6">
+            <!-- Create Post -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form action="/posts/create" method="POST">
+                        <div class="mb-3">
+                            <textarea class="form-control" name="content" rows="3" placeholder="Share your eco-friendly thoughts..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Post
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div class="posts-container">
+                <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+                    <% posts.forEach(post => { %>
+                        <div class="card post-card mb-4 fade-in" data-post-id="<%= post._id %>">
+                            <div class="card-body">
+                                <div class="post-header">
+                                    <img src="<%= post.author.profilePicture || '/images/default-avatar.png' %>" 
+                                         alt="Profile" 
+                                         class="rounded-circle" 
+                                         width="40" 
+                                         height="40">
+                                    <div>
+                                        <h6 class="mb-0"><%= post.author.username %></h6>
+                                        <small class="text-muted"><%= new Date(post.createdAt).toLocaleString() %></small>
+                                    </div>
+                                </div>
+                                <p class="card-text"><%= post.content %></p>
+                                <div class="post-actions">
+                                    <button class="btn btn-outline-success btn-sm like-btn" data-post-id="<%= post._id %>">
+                                        <i class="fas fa-leaf"></i> Like (<span class="likes-count"><%= post.likes.length %></span>)
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm comment-btn" data-post-id="<%= post._id %>">
+                                        <i class="fas fa-comment"></i> Comment (<%= post.comments.length %>)
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm share-btn">
+                                        <i class="fas fa-share"></i> Share
+                                    </button>
+                                </div>
+                                <!-- Comments will be dynamically added here -->
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="text-center text-muted mt-4">
+                        <i class="fas fa-leaf fa-3x mb-3"></i>
+                        <p>No posts yet. Be the first to share something!</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-md-3">
+            <!-- Suggested Connections -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-users"></i> Suggested Connections
+                    </h5>
+                    <% if (typeof suggestedUsers !== 'undefined' && suggestedUsers.length > 0) { %>
+                        <% suggestedUsers.forEach(user => { %>
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="<%= user.profilePicture || '/images/default-avatar.png' %>" 
+                                     alt="Profile" 
+                                     class="rounded-circle me-2" 
+                                     width="32" 
+                                     height="32">
+                                <div>
+                                    <h6 class="mb-0"><%= user.username %></h6>
+                                    <small class="text-muted"><%= user.interests[0] %></small>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm ms-auto">Connect</button>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-muted">No suggestions available</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Trending Topics -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-chart-line"></i> Trending Topics
+                    </h5>
+                    <div class="trending-topics">
+                        <a href="#" class="badge bg-light text-success d-block mb-2">#ClimateAction</a>
+                        <a href="#" class="badge bg-light text-success d-block mb-2">#SustainableLiving</a>
+                        <a href="#" class="badge bg-light text-success d-block mb-2">#ZeroWaste</a>
+                        <a href="#" class="badge bg-light text-success d-block">#RenewableEnergy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add client-side JavaScript for interactivity -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Like button functionality
+    document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.dataset.postId;
+            try {
+                const response = await fetch(`/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const likesCount = button.querySelector('.likes-count');
+                    likesCount.textContent = parseInt(likesCount.textContent) + (data.liked ? 1 : -1);
+                    button.classList.toggle('active');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+    });
+});
+</script>
+
+<!-- Include the feed.js script at the end of the file -->
+<script src="/js/feed.js"></script>

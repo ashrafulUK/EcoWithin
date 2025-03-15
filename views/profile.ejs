@@ -1,0 +1,193 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <img src="<%= user.profilePicture || '/images/default-avatar.png' %>" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+          <h4 class="card-title"><%= user.username || user.name %></h4>
+          <p class="text-muted"><%= user.location || 'Location not set' %></p>
+          <% if (isOwnProfile) { %>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+              <i class="fas fa-edit"></i> Edit Profile
+            </button>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Bio</h5>
+          <p class="card-text"><%= user.bio || 'No bio added yet' %></p>
+          
+          <h5 class="card-title mt-4">Environmental Interests</h5>
+          <% if (user.interests && user.interests.length > 0) { %>
+            <div class="d-flex flex-wrap gap-2">
+              <% user.interests.forEach(interest => { %>
+                <span class="badge bg-success"><%= interest %></span>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="text-muted">No interests added yet</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="posts-tab" data-bs-toggle="tab" href="#posts" role="tab">Posts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="groups-tab" data-bs-toggle="tab" href="#groups" role="tab">Groups</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="volunteering-tab" data-bs-toggle="tab" href="#volunteering" role="tab">Volunteering</a>
+        </li>
+      </ul>
+
+      <div class="tab-content mt-3" id="profileTabsContent">
+        <!-- Posts Tab -->
+        <div class="tab-pane fade show active" id="posts" role="tabpanel">
+          <% if (user.posts && user.posts.length > 0) { %>
+            <% user.posts.forEach(post => { %>
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-3">
+                    <img src="<%= user.profilePicture || '/images/default-avatar.png' %>" efault-avatar.png' %>" 
+                         alt="Profile" 
+                         class="rounded-circle me-2" 
+                         width="40" 
+                         height="40">
+                    <div>
+                      <h6 class="mb-0"><%= user.name || user.username %></h6>
+                      <small class="text-muted">
+                        <%= new Date(post.createdAt).toLocaleString() %>
+                      </small>
+                    </div>
+                  </div>
+                  <% if (post.title) { %>
+                    <h5 class="card-title"><%= post.title %></h5>
+                  <% } %>
+                  <p class="card-text"><%= post.content %></p>
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                      <span class="text-muted"><i class="fas fa-thumbs-up"></i> <%= post.likes ? post.likes.length : 0 %></span>
+                      <span class="text-muted ms-3"><i class="fas fa-comment"></i> <%= post.comments ? post.comments.length : 0 %></span>
+                    </div>
+                    <small class="text-muted">Posted on <%= new Date(post.createdAt).toLocaleDateString() %></small>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="text-center py-4">
+              <p class="text-muted">No posts yet</p>
+              <a href="/posts/new" class="btn btn-success">Create Your First Post</a>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Groups Tab -->
+        <div class="tab-pane fade" id="groups" role="tabpanel">
+          <% if (user.groups && user.groups.length > 0) { %>
+            <div class="row">
+              <% user.groups.forEach(group => { %>
+                <div class="col-md-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= group.name %></h5>
+                      <p class="card-text"><%= group.description %></p>
+                      <a href="/groups/<%= group._id %>" class="btn btn-outline-success">View Group</a>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-4">
+              <p class="text-muted">Not a member of any groups yet</p>
+              <a href="/groups" class="btn btn-success">Explore Groups</a>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Volunteering Tab -->
+        <div class="tab-pane fade" id="volunteering" role="tabpanel">
+          <% if (user.volunteering && user.volunteering.length > 0) { %>
+            <div class="row">
+              <% user.volunteering.forEach(opportunity => { %>
+                <div class="col-12 mb-3">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= opportunity.title %></h5>
+                      <p class="card-text"><%= opportunity.description %></p>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                          <%= new Date(opportunity.date.start).toLocaleDateString() %> - 
+                          <%= new Date(opportunity.date.end).toLocaleDateString() %>
+                        </small>
+                        <span class="badge bg-<%= opportunity.status === 'completed' ? 'success' : 'primary' %>">
+                          <%= opportunity.status %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-4">
+              <p class="text-muted">No volunteering activities yet</p>
+              <a href="/volunteers" class="btn btn-success">Find Opportunities</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/profile" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" name="name" value="<%= user.name %>" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" value="<%= user.email %>" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-control" name="location" value="<%= user.location %>">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Bio</label>
+            <textarea class="form-control" name="bio" rows="3"><%= user.bio %></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Environmental Interests</label>
+            <input type="text" class="form-control" name="interests" value="<%= user.interests ? user.interests.join(', ') : '' %>" placeholder="Separate interests with commas">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,200 @@
+<%- include('./partials/header') %>
+
+<div class="welcome-container my-5">
+    <div class="container">
+        <div class="row">
+            <!-- Left side - Brand Info -->
+            <div class="col-md-6 welcome-left">
+                <div class="brand-section">
+                    <h1 class="brand-name text-success">
+                        <i class="fas fa-leaf"></i> EcoConnect
+                    </h1>
+                    <p class="brand-tagline text-success">Connect with eco-conscious people and make a difference together</p>
+                </div>
+            </div>
+
+            <!-- Right side - Auth Forms -->
+            <div class="col-md-6">
+                <div class="auth-container">
+                    <!-- Login Form -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Login</h4>
+                            <form action="/auth/login" method="POST">
+                                <div class="mb-3">
+                                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                                </div>
+                                <div class="mb-3 password-field">
+                                    <div class="input-group">
+                                        <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide Password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Log In</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Create New Account</h4>
+                            <form action="/auth/register" method="POST">
+                                <div class="mb-3">
+                                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                                </div>
+                                <div class="mb-3 password-field">
+                                    <div class="input-group">
+                                        <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide Password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3 password-field">
+                                    <div class="input-group">
+                                        <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm Password" required>
+                                        <button type="button" class="btn btn-outline-secondary toggle-password" title="Show/Hide Password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Select Your Eco Interests</label>
+                                    <select name="interests" class="form-select" multiple required>
+                                        <option value="Renewable Energy">Renewable Energy</option>
+                                        <option value="Sustainable Living">Sustainable Living</option>
+                                        <option value="Wildlife Conservation">Wildlife Conservation</option>
+                                        <option value="Zero Waste">Zero Waste</option>
+                                        <option value="Organic Farming">Organic Farming</option>
+                                        <option value="Climate Action">Climate Action</option>
+                                        <option value="Ocean Conservation">Ocean Conservation</option>
+                                        <option value="Green Technology">Green Technology</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-container {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+}
+
+.brand-section {
+    padding: 2rem;
+    text-align: center;
+}
+
+.brand-name {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.brand-tagline {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+.auth-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.password-field .input-group-text,
+.password-field .btn {
+    border-left: none;
+}
+
+.password-field .form-control:focus + .input-group-text,
+.password-field .form-control:focus + .btn {
+    border-color: #86b7fe;
+}
+
+.toggle-password:focus {
+    box-shadow: none;
+}
+
+.toggle-password.active {
+    color: #2e7d32;
+}
+
+.form-select[multiple] {
+    height: 150px;
+}
+
+@media (max-width: 768px) {
+    .welcome-container {
+        padding-top: 2rem;
+        min-height: auto;
+    }
+    
+    .brand-section {
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .brand-name {
+        font-size: 2.5rem;
+    }
+    
+    .brand-tagline {
+        font-size: 1.2rem;
+    }
+    
+    .auth-container {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                this.classList.add('active');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                this.classList.remove('active');
+            }
+        });
+    });
+});
+</script>

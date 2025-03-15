@@ -1,0 +1,213 @@
+<%- include('./partials/header') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-md-3">
+            <!-- Group Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title text-success mb-0">
+                            <i class="fas fa-users"></i> <%= group.name %>
+                        </h5>
+                        <% if (group.isPrivate) { %>
+                            <span class="badge bg-warning">
+                                <i class="fas fa-lock"></i> Private
+                            </span>
+                        <% } %>
+                    </div>
+                    <p class="card-text text-muted mb-3"><%= group.description %></p>
+                    <div class="mb-3">
+                        <span class="badge bg-success"><%= group.category %></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-users"></i> <%= group.members.length %> members
+                        </small>
+                        <small class="text-muted">
+                            Created <%= new Date(group.createdAt).toLocaleDateString() %>
+                        </small>
+                    </div>
+                    <% const isMember = group.members.some(m => m.user._id.toString() === user._id.toString()); %>
+                    <form action="/groups/<%= group._id %>/membership" method="POST">
+                        <button type="submit" class="btn <%= isMember ? 'btn-outline-danger' : 'btn-success' %> w-100">
+                            <i class="fas <%= isMember ? 'fa-sign-out-alt' : 'fa-sign-in-alt' %>"></i>
+                            <%= isMember ? 'Leave Group' : 'Join Group' %>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Members List -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-user-friends"></i> Members
+                    </h5>
+                    <div class="list-group">
+                        <% group.members.forEach(member => { %>
+                            <div class="list-group-item d-flex align-items-center">
+                                <img src="<%= member.user.profilePicture || '/images/default-avatar.png' %>" 
+                                     alt="Profile" 
+                                     class="rounded-circle me-2" 
+                                     width="32" 
+                                     height="32">
+                                <div>
+                                    <h6 class="mb-0"><%= member.user.username %></h6>
+                                    <small class="text-muted"><%= member.role %></small>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Projects Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title text-success mb-0">
+                            <i class="fas fa-project-diagram"></i> Projects
+                        </h5>
+                        <% if (isMember) { %>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+                                <i class="fas fa-plus"></i> New Project
+                            </button>
+                        <% } %>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <% if (group.projects && group.projects.length > 0) { %>
+                            <% group.projects.forEach(project => { %>
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-success"><%= project.title %></h6>
+                                            <p class="card-text text-muted"><%= project.description %></p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar"></i> 
+                                                    <%= new Date(project.startDate).toLocaleDateString() %> - 
+                                                    <%= new Date(project.endDate).toLocaleDateString() %>
+                                                </small>
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-users"></i> <%= project.participants.length %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> No projects yet. 
+                                    <% if (isMember) { %>
+                                        Create one to get started!
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discussions Section -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-success mb-4">
+                        <i class="fas fa-comments"></i> Discussions
+                    </h5>
+                    <% if (isMember) { %>
+                        <form action="/groups/<%= group._id %>/discussions" method="POST" class="mb-4">
+                            <div class="mb-3">
+                                <textarea name="content" class="form-control" rows="3" placeholder="Share your thoughts..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> Post
+                            </button>
+                        </form>
+                    <% } %>
+                    <div class="discussions-container">
+                        <% if (group.discussions && group.discussions.length > 0) { %>
+                            <% group.discussions.reverse().forEach(discussion => { %>
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start mb-3">
+                                            <img src="<%= discussion.author.profilePicture || '/images/default-avatar.png' %>" 
+                                                 alt="Profile" 
+                                                 class="rounded-circle me-2" 
+                                                 width="40" 
+                                                 height="40">
+                                            <div>
+                                                <h6 class="mb-0"><%= discussion.author.username %></h6>
+                                                <small class="text-muted">
+                                                    <%= new Date(discussion.createdAt).toLocaleString() %>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <p class="card-text"><%= discussion.content %></p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> No discussions yet. 
+                                <% if (isMember) { %>
+                                    Start the conversation!
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal fade" id="newProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success">
+                    <i class="fas fa-plus-circle"></i> New Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/groups/<%= group._id %>/projects" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Project Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" name="startDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" name="endDate" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

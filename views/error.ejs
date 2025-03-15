@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-triangle text-warning fa-4x mb-4"></i>
+                    <h2 class="card-title text-danger mb-4"><%= title %></h2>
+                    <p class="card-text text-muted mb-4"><%= message %></p>
+                    <% if (typeof error !== 'undefined' && error && Object.keys(error).length > 0) { %>
+                        <div class="alert alert-danger">
+                            <pre class="mb-0"><%= JSON.stringify(error, null, 2) %></pre>
+                        </div>
+                    <% } %>
+                    <a href="/" class="btn btn-success">
+                        <i class="fas fa-home"></i> Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

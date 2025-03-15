@@ -1,0 +1,280 @@
+<%- include('./partials/header') %>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Left Sidebar - Contacts -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Search contacts...">
+                        <button class="btn btn-success">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="nav flex-column nav-pills" id="chatContacts">
+                        <% if (typeof contacts !== 'undefined' && contacts.length > 0) { %>
+                            <% contacts.forEach(contact => { %>
+                                <a class="nav-link d-flex align-items-center p-2 mb-2" href="#" data-user-id="<%= contact._id %>">
+                                    <img src="<%= contact.profilePicture || '/images/default-avatar.png' %>" 
+                                         class="rounded-circle me-2"
+                                         width="40" 
+                                         height="40"
+                                         alt="<%= contact.username %>">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0"><%= contact.username %></h6>
+                                            <% if (contact.unreadCount > 0) { %>
+                                                <span class="badge bg-success rounded-pill"><%= contact.unreadCount %></span>
+                                            <% } %>
+                                        </div>
+                                        <small class="text-muted">
+                                            <% if (contact.interests && contact.interests.length > 0) { %>
+                                                <i class="fas fa-leaf"></i> <%= contact.interests[0] %>
+                                            <% } %>
+                                        </small>
+                                    </div>
+                                </a>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                <p>No contacts yet</p>
+                                <a href="/feed" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i> Find Eco-Friends
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eco Groups -->
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-success mb-3">Eco Groups</h6>
+                    <div class="nav flex-column nav-pills">
+                        <% if (typeof groups !== 'undefined' && groups.length > 0) { %>
+                            <% groups.forEach(group => { %>
+                                <a class="nav-link d-flex align-items-center p-2 mb-2" href="#" data-group-id="<%= group._id %>">
+                                    <div class="rounded-circle bg-light me-2 p-2" style="width: 40px; height: 40px; text-align: center;">
+                                        <i class="<%= group.icon || 'fas fa-users' %> text-success"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0"><%= group.name %></h6>
+                                        <small class="text-muted"><%= group.memberCount %> members</small>
+                                    </div>
+                                </a>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-4">
+                                <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                <p>No groups yet</p>
+                                <a href="/groups" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i> Join Groups
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="col-md-9">
+            <div class="card" style="height: calc(100vh - 100px);">
+                <!-- Chat Header -->
+                <div class="card-header bg-white border-bottom-0 d-flex align-items-center">
+                    <img src="/images/default-avatar.png" 
+                         class="rounded-circle me-2"
+                         width="40" 
+                         height="40"
+                         alt="Chat">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">Select a contact</h6>
+                        <small class="text-muted">Start an eco-friendly conversation</small>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> View Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-bell"></i> Mute Notifications</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-ban"></i> Block</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="card-body chat-messages p-4" style="height: calc(100% - 130px); overflow-y: auto;">
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-success mb-3"></i>
+                        <h5>Welcome to EcoChat!</h5>
+                        <p class="text-muted">Connect with like-minded environmentalists</p>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="card-footer bg-white border-top-0 p-3">
+                    <form id="chatForm" class="d-flex align-items-center">
+                        <button type="button" class="btn btn-light me-2">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="text" class="form-control me-2" placeholder="Type your message...">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.nav-link {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(46, 125, 50, 0.1);
+}
+
+.nav-link.active {
+    background-color: var(--primary-color) !important;
+}
+
+.chat-messages {
+    background-color: #f8f9fa;
+}
+
+.message {
+    max-width: 75%;
+    margin-bottom: 1rem;
+}
+
+.message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+}
+
+.message.received .message-content {
+    background-color: white;
+    border: 1px solid #dee2e6;
+}
+
+.message.sent {
+    margin-left: auto;
+}
+
+.message.sent .message-content {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 8px;
+}
+
+/* Custom Scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const socket = io();
+    const chatForm = document.getElementById('chatForm');
+    const chatMessages = document.querySelector('.chat-messages');
+    let currentChat = null;
+
+    // Handle chat contact selection
+    document.querySelectorAll('#chatContacts .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const userId = this.dataset.userId;
+            currentChat = userId;
+            
+            // Update active state
+            document.querySelectorAll('#chatContacts .nav-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update chat header
+            const username = this.querySelector('h6').textContent;
+            const avatar = this.querySelector('img').src;
+            updateChatHeader(username, avatar);
+
+            // Load chat history
+            socket.emit('load_chat', userId);
+        });
+    });
+
+    // Handle message submission
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = this.querySelector('input');
+        const message = input.value.trim();
+
+        if (message && currentChat) {
+            socket.emit('send_message', {
+                recipient: currentChat,
+                content: message
+            });
+
+            // Add message to chat
+            addMessage(message, true);
+            input.value = '';
+        }
+    });
+
+    // Listen for incoming messages
+    socket.on('receive_message', function(data) {
+        if (currentChat === data.sender) {
+            addMessage(data.content, false);
+        }
+    });
+
+    // Update chat header
+    function updateChatHeader(username, avatar) {
+        const header = document.querySelector('.card-header');
+        header.querySelector('img').src = avatar;
+        header.querySelector('h6').textContent = username;
+        header.querySelector('small').textContent = 'Online';
+    }
+
+    // Add message to chat
+    function addMessage(content, sent) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sent ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${content}
+            </div>
+            <small class="text-muted d-block mt-1">
+                ${new Date().toLocaleTimeString()}
+            </small>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+</script>
