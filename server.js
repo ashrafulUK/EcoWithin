@@ -9,18 +9,17 @@ const passport = require('passport');
 const { Server } = require('socket.io');
 const http = require('http');
 const expressLayouts = require('express-ejs-layouts');
-// Load environment variables
 dotenv.config({ path: './config.env' });
 
-// Initialize Express
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Store io instance
+
 app.set('io', io);
 
-// Passport Config
+
 require('./config/passport')(passport);
 
 // Connect to MongoDB
@@ -83,7 +82,7 @@ io.on('connection', (socket) => {
   io.use(wrap(passport.initialize()));
   io.use(wrap(passport.session()));
 
-  // Join private room for user
+  
   if (socket.request.session.passport?.user) {
     const userId = socket.request.session.passport.user;
     socket.join(userId.toString());
@@ -94,7 +93,7 @@ io.on('connection', (socket) => {
     });
   }
 
-  // Join/Leave room
+  
   socket.on('join_room', (room) => {
     socket.join(room);
   });
@@ -103,7 +102,7 @@ io.on('connection', (socket) => {
     socket.leave(room);
   });
 
-  // Handle private messages
+  
   socket.on('private_message', (data) => {
     io.to(data.recipient).emit('receive_message', {
       sender: data.sender,
@@ -112,7 +111,7 @@ io.on('connection', (socket) => {
     });
   });
 
-  // Handle group messages
+  
   socket.on('group_message', (data) => {
     io.to(`group_${data.groupId}`).emit('receive_message', {
       sender: data.sender,
@@ -145,6 +144,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
